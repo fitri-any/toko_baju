@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Penjualan Baju dengan Pembayaran</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f2f2f2;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+
+  /* Grid produk */
+  .product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+  }
+
+  .product {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.15);
+    text-align: center;
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .product:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  }
+
+  .product img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+  }
+
+  .product img:hover {
+    transform: scale(1.08);
+  }
+
+  .product h3 {
+    margin: 15px 0 5px;
+    color: #222;
+    font-size: 18px;
+  }
+
+  .product p {
+    color: #777;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .btn-buy {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-buy:hover {
+    background-color: #45a049;
+  }
+
+  /* Keranjang */
+  #cart {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+  }
+
+  #cart h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  #cart ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  #cart ul li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #total-price {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  /* Form pembayaran */
+  #payment-form {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  #payment-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+
+  #payment-form select,
+  #payment-form input[type="number"] {
+    margin-bottom: 15px;
+    padding: 8px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  #pay-btn {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #pay-btn:hover {
+    background-color: #45a049;
+  }
+
+  #message {
+    margin-top: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  /* Popup notifikasi sukses */
+  #success-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    font-size: 20px;
+    text-align: center;
+    animation: fadeInOut 3s ease forwards;
+    z-index: 1000;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -60%); }
+    10%, 90% { opacity: 1; transform: translate(-50%, -50%); }
+    100% { opacity: 0; transform: translate(-50%, -40%); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Selamat Datang di Penjualan Baju</h1>
+
+<div class="product-list">
+  <div class="product" data-name="Kaos Polos" data-price="50000">
+    <img src="img/kaos polos.jpg.jpg" alt="Kaos Polos" />
+    <h3>Kaos Polos</h3>
+    <p>Rp50.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Kemeja Lengan Panjang" data-price="120000">
+    <img src="img/kemeja.jpg.jpg" alt="Kemeja Lengan Panjang" />
+    <h3>Kemeja Lengan Panjang</h3>
+    <p>Rp120.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Kemeja Merah" data-price="120000">
+    <img src="img/kemeja 1.jpg.jpg" alt="Kemeja Merah" />
+    <h3>Kemeja Merah</h3>
+    <p>Rp120.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Jaket Hoodie" data-price="200000">
+    <img src="img/hoodie.jpg.jpg" alt="Jaket Hoodie" />
+    <h3>Jaket Hoodie</h3>
+    <p>Rp200.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Jeans Pria" data-price="150000">
+    <img src="img/jeans.jpg.jpg" alt="Jeans Pria" />
+    <h3>Jeans Pria</h3>
+    <p>Rp150.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Celana Kerja Pria" data-price="180000">
+    <img src="img/celana kerja pria.jpg.jpg" alt="Celana Kerja Pria" />
+    <h3>Celana Kerja Pria</h3>
+    <p>Rp180.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="Boxer Pria" data-price="70000">
+    <img src="img/Boxer pria.jpg.jpg" alt="Boxer Pria" />
+    <h3>Boxer Pria</h3>
+    <p>Rp70.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="basic poplin" data-price="80000">
+    <img src="img/basic poplin.jpg.jpg" alt="basic poplin" />
+    <h3>basic poplin</h3>
+    <p>Rp80.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="ivory" data-price="110000">
+    <img src="img/ivory,jpg.jpg" alt="ivory" />
+    <h3>ivory</h3>
+    <p>Rp110.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+
+  <div class="product" data-name="J_VER men's" data-price="100000">
+    <img src="img/J_VER Men's.jpg.jpg" alt="J_VER men's" />
+    <h3>J_VER men's</h3>
+    <p>Rp100.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+  <div class="product" data-name="Baby Boys Khaki" data-price="100000">
+    <img src="img/Baby Boys Khaki.jpg.jpg" alt="Baby Boys Khaki" />
+    <h3>Baby Boys Khaki</h3>
+    <p>Rp65.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+  <div class="product" data-name="kaos lengan panjang" data-price="100000">
+    <img src="img/kaos lengan panjang.jpg.jpg" alt="kaos lengan panjang" />
+    <h3>kaos lengan panjang</h3>
+    <p>Rp78.000</p>
+    <button class="btn-buy">Beli Sekarang</button>
+  </div>
+</div>
+
+<!-- KERANJANG -->
+<div id="cart">
+  <h2>Keranjang Belanja</h2>
+  <ul id="cart-items"></ul>
+  <div id="total-price">Total: Rp0</div>
+</div>
+
+<!-- PEMBAYARAN -->
+<div id="payment-form" style="display:none;">
+  <h2>Pembayaran</h2>
+
+  <label for="payment-method">Metode Pembayaran:</label>
+  <select id="payment-method">
+    <option value="">--Pilih Metode--</option>
+    <option value="cod">Bayar di Tempat (COD)</option>
+    <option value="tunai">Tunai</option>
+  </select>
+
+  <label for="amount-paid">Jumlah Dibayar (Rp):</label>
+  <input type="number" id="amount-paid" min="0" placeholder="Masukkan jumlah dibayar" />
+
+  <button id="pay-btn">Bayar</button>
+  <div id="message"></div>
+</div>
+
+<!-- POPUP NOTIFIKASI BERHASIL -->
+<div id="success-popup">💰 Pembayaran Berhasil!</div>
+
+<script>
+  const cartItems = [];
+  const cartItemsList = document.getElementById('cart-items');
+  const totalPriceEl = document.getElementById('total-price');
+  const paymentForm = document.getElementById('payment-form');
+  const paymentMethodSelect = document.getElementById('payment-method');
+  const amountPaidInput = document.getElementById('amount-paid');
+  const payBtn = document.getElementById('pay-btn');
+  const message = document.getElementById('message');
+  const successPopup = document.getElementById('success-popup');
+
+  function formatRupiah(angka) {
+    return 'Rp' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  document.querySelectorAll('.btn-buy').forEach(button => {
+    button.addEventListener('click', () => {
+      const productEl = button.closest('.product');
+      const name = productEl.dataset.name;
+      const price = parseInt(productEl.dataset.price);
+
+      cartItems.push({ name, price });
+      renderCart();
+      paymentForm.style.display = 'block';
+      message.textContent = ''; // reset pesan
+    });
+  });
+
+  function renderCart() {
+    cartItemsList.innerHTML = '';
+    let total = 0;
+    cartItems.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = `${item.name} - ${formatRupiah(item.price)}`;
+      cartItemsList.appendChild(li);
+      total += item.price;
+    });
+    totalPriceEl.textContent = 'Total: ' + formatRupiah(total);
+  }
+
+  payBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+    const amountPaid = parseInt(amountPaidInput.value);
+    const paymentMethod = paymentMethodSelect.value;
+
+    if (cartItems.length === 0) {
+      message.style.color = 'red';
+      message.textContent = 'Keranjang kosong!';
+      return;
+    }
+
+    if (paymentMethod === "") {
+      message.style.color = 'red';
+      message.textContent = 'Pilih metode pembayaran terlebih dahulu!';
+      return;
+    }
+
+    if (paymentMethod === "cod") {
+      message.style.color = 'green';
+      message.textContent = 'Pesanan dengan COD diterima. Terima kasih!';
+      showSuccessPopup();
+    } else {
+      if (isNaN(amountPaid) || amountPaid < total) {
+        message.style.color = 'red';
+        message.textContent = 'Jumlah dibayar kurang dari total!';
+        return;
+      }
+      const change = amountPaid - total;
+      message.style.color = 'green';
+      message.textContent = `Pembayaran berhasil! Kembalian Anda: ${formatRupiah(change)}`;
+      showSuccessPopup();
+    }
+
+    // Reset data setelah pembayaran
+    cartItems.length = 0;
+    renderCart();
+    paymentForm.style.display = 'none';
+    paymentMethodSelect.value = '';
+    amountPaidInput.value = '';
+  });
+
+  // Fungsi menampilkan popup notifikasi sukses
+  function showSuccessPopup() {
+    successPopup.style.display = 'block';
+    setTimeout(() => {
+      successPopup.style.display = 'none';
+    }, 3000);
+  }
+</script>
+
+</body>
+</html>
